@@ -14,4 +14,6 @@ Use these preferences alongside current project docs and explicit decisions.
 
 Nathan works on this machine headlessly and reviews on his laptop. For requested changes, push a task branch and open or update a draft PR targeting `main`; do not stop at local edits. Prefer small, coherent PRs.
 
+For prototype iterations, use a quick visual check and focused tests for changed simulation rules, then push promptly for Nathan's feedback. Reserve broader browser sweeps for concrete issues or a review stage. Nathan prefers being in the loop and iterating quickly.
+
 Use additive commits once review begins. Do not force-push, rewrite reviewed history, merge, or claim Nathan approved work without explicit authorization. Preserve unrelated work.
