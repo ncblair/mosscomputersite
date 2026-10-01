@@ -52,33 +52,20 @@ test('matching random sequences produce matching independent simulations', () =>
     second.step();
   }
   assert.deepEqual(first.cells, second.cells);
-  assert.deepEqual(first.falling, second.falling);
   first.setBlocked(false);
   first.step();
   assert.notDeepEqual(first.cells, second.cells);
 });
 
 
-test('long hanging strands detach, accelerate, and leave the field', () => {
-  const habitat = new Uint8Array(4 * 48).fill(1);
-  habitat[4 * 4 + 1] = 2;
-  const growth = new MossGrowth(4, 48, habitat, () => 0);
-  // A mature strand extends below the star's lowest solid cell.
-  for (let y = 5; y < 23; y++) growth.cells[y * 4 + 1] = 200;
-  growth.blocked = true;
-  growth.dropStrands();
-  assert.equal(growth.falling.length, 1);
-  const strand = growth.falling[0];
-  const cut = 5 + 9;
-  assert.equal(strand.y, cut);
-  assert.equal(strand.ages.length, 9);
-  assert.equal(growth.cells[cut * 4 + 1], 0);
-  assert.equal(growth.cells[(cut - 1) * 4 + 1], 200);
-  growth.blocked = false;
-  growth.dropStrands();
-  const firstDistance = strand.y - cut;
-  growth.dropStrands();
-  assert(strand.y - cut - firstDistance > firstDistance);
-  for (let step = 0; step < 30; step++) growth.dropStrands();
-  assert.equal(growth.falling.length, 0);
+test('blocked growth stays at its original cells as colonies mature', () => {
+  const growth = simulation();
+  growth.setBlocked(true);
+  for (let step = 0; step < 300; step++) {
+    const before = growth.cells.slice();
+    growth.step();
+    before.forEach((age, index) => {
+      if (age) assert(growth.cells[index] >= age, `Growth detached at cell ${index}`);
+    });
+  }
 });

@@ -13,14 +13,9 @@ export class MossGrowth {
     this.next = new Uint8Array(this.cells.length);
     this.blocked = false;
     this.spawners = [];
-    this.bottom = new Int16Array(width).fill(-1);
-    this.falling = [];
     habitat.forEach((value, i) => {
       // The solid middle slice seeds its two exposed faces.
-      if (value === 2) {
-        this.spawners.push(i, 2 * this.area + i);
-        this.bottom[i % width] = Math.floor(i / width);
-      }
+      if (value === 2) this.spawners.push(i, 2 * this.area + i);
     });
   }
 
@@ -57,8 +52,8 @@ export class MossGrowth {
               for (let dx = -1; dx <= 1; dx++) {
                 if ((!dx && !dy) || x + dx < 0 || x + dx >= width || y + dy < 0 || y + dy >= height) continue;
                 if (cells[z * area + (y + dy) * width + x + dx] > 12) {
-                  // Gravity favors growth from a neighbor above.
-                  influence += dy === -1 ? (dx === 0 ? 7 : 2) : dy === 0 ? .5 : .06;
+                  // Favor downward spread without moving or detaching existing cells.
+                  influence += dy === -1 ? (dx === 0 ? 3.5 : 1.4) : dy === 0 ? .65 : .12;
                 }
               }
             }
@@ -78,34 +73,5 @@ export class MossGrowth {
     }
     this.cells = next;
     this.next = cells;
-    this.dropStrands();
-  }
-
-  dropStrands() {
-    const { width, height, area, cells } = this;
-    for (const strand of this.falling) {
-      strand.velocity += .35;
-      strand.y += strand.velocity;
-    }
-    this.falling = this.falling.filter(strand => strand.y < height);
-    if (!this.blocked) return;
-    for (let z = 0; z < this.depth; z++) {
-      for (let x = 0; x < width; x++) {
-        const start = this.bottom[x] + 1;
-        if (start === 0) continue;
-        let length = 0;
-        while (start + length < height && cells[z * area + (start + length) * width + x] > 12) length++;
-        // A long pendant strand breaks below its attachment and falls as a strip.
-        if (length < 12 || this.random() >= .012) continue;
-        const cut = start + Math.floor(length / 2);
-        const ages = new Uint8Array(start + length - cut);
-        for (let n = 0; n < ages.length; n++) {
-          const i = z * area + (cut + n) * width + x;
-          ages[n] = cells[i];
-          cells[i] = 0;
-        }
-        this.falling.push({ x, y: cut, z, ages, velocity: .25 });
-      }
-    }
   }
 }

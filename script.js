@@ -51,13 +51,14 @@ function drawLayer(field, z) {
   const { growth } = field;
   const pixels = (z === 0 ? field.backPixels : field.frontPixels).data;
   const colors = growth.blocked ? greens : dry;
-  function pixel(x, y, age, index) {
-    let hash = Math.imul(index + z * growth.area + 1, 0x45d9f3b);
+  for (let i = 0; i < growth.area; i++) {
+    const age = growth.cells[z * growth.area + i];
+    if (!age) continue;
+    let hash = Math.imul(i + z * growth.area + 1, 0x45d9f3b);
     hash = Math.imul(hash ^ (hash >>> 16), 0x45d9f3b);
     const variation = ((hash ^ (hash >>> 16)) >>> 0) % 3;
     const tone = Math.min(colors.length - 1, Math.floor(age / 80) + variation + (z === 0 ? 1 : 0));
-    if (y >= growth.height) return;
-    const offset = (y * growth.width + x) * 4;
+    const offset = i * 4;
     const color = colors[tone];
     const alpha = growth.blocked ? 1 : Math.min(1, age / 65);
     const behind = pixels[offset + 3] / 255 * (1 - alpha);
@@ -66,14 +67,6 @@ function drawLayer(field, z) {
     pixels[offset + 1] = (((color >> 8) & 255) * alpha + pixels[offset + 1] * behind) / combined;
     pixels[offset + 2] = ((color & 255) * alpha + pixels[offset + 2] * behind) / combined;
     pixels[offset + 3] = combined * 255;
-  }
-  for (let i = 0; i < growth.area; i++) {
-    const age = growth.cells[z * growth.area + i];
-    if (age) pixel(i % growth.width, Math.floor(i / growth.width), age, i);
-  }
-  for (const strand of growth.falling) {
-    if (strand.z !== z) continue;
-    strand.ages.forEach((age, n) => pixel(strand.x, Math.floor(strand.y) + n, age, n + strand.x));
   }
 }
 
@@ -90,7 +83,6 @@ function draw(field) {
 
 function settle(field, steps) {
   for (let i = 0; i < steps; i++) field.growth.step();
-  field.growth.falling.length = 0;
 }
 
 await star.decode();
@@ -127,7 +119,6 @@ function settlePhoneForReducedMotion() {
   if (phone.growth.blocked) settle(phone, 100);
   else {
     phone.growth.cells.fill(0);
-    phone.growth.falling.length = 0;
   }
 }
 
@@ -150,7 +141,7 @@ setInterval(() => {
   titleMoss.growth.step();
   draw(titleMoss);
   // Avoid simulation and painting once the unblocked phone has cleared.
-  if (phone.growth.blocked || phone.growth.cells.some(age => age > 0) || phone.growth.falling.length) {
+  if (phone.growth.blocked || phone.growth.cells.some(age => age > 0)) {
     phone.growth.step();
     draw(phone);
   }
