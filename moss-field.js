@@ -8,7 +8,7 @@ export function createHabitat(width, height, surface) {
   // A circular fringe gives every direction the same room to grow.
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      if (surface[y * width + x] !== 2) continue;
+      if (surface[y * width + x] < 2) continue;
       for (let dy = -6; dy <= 6; dy++) {
         for (let dx = -6; dx <= 6; dx++) {
           if (dx * dx + dy * dy > 36 || x + dx < 0 || x + dx >= width || y + dy < 0 || y + dy >= height) continue;
@@ -79,7 +79,7 @@ function paintImage(ink, image, x, y, width, height, fillInterior) {
   ink.drawImage(mask, x, y, width, height);
 }
 
-export function createField(element, width, height, paintShape, spreadRate = 1) {
+export function createField(element, width, height, paintShape, spreadRate = 1, growInterior = false) {
   const back = element.querySelector('.back');
   const front = element.querySelector('.front');
   back.width = front.width = width;
@@ -92,6 +92,13 @@ export function createField(element, width, height, paintShape, spreadRate = 1) 
   const pixels = ink.getImageData(0, 0, width, height).data;
   const surface = new Uint8Array(width * height);
   for (let i = 0; i < surface.length; i++) if (pixels[i * 4 + 3] > 90) surface[i] = 2;
+  if (growInterior) {
+    // The second pass extends the surface without adding seed sites.
+    ink.clearRect(0, 0, width, height);
+    paintShape(ink, true);
+    const extendedPixels = ink.getImageData(0, 0, width, height).data;
+    for (let i = 0; i < surface.length; i++) if (!surface[i] && extendedPixels[i * 4 + 3] > 90) surface[i] = 3;
+  }
   const habitat = createHabitat(width, height, surface);
   const backContext = back.getContext('2d');
   const frontContext = front.getContext('2d');
@@ -105,7 +112,7 @@ export function createField(element, width, height, paintShape, spreadRate = 1) 
 }
 
 export function createIconField(element, image, options = {}) {
-  const { fullHeight = false, fillInterior = false, spreadRate = 1 } = options;
+  const { fullHeight = false, fillInterior = false, growInterior = false, spreadRate = 1 } = options;
   const container = element.querySelector('.icon-field');
   container.classList.toggle('full-height', fullHeight);
   const bounds = container.getBoundingClientRect();
@@ -113,10 +120,10 @@ export function createIconField(element, image, options = {}) {
   const width = fullHeight ? Math.ceil(bounds.width / 1.5) : 144;
   const height = fullHeight ? Math.ceil(bounds.height / 1.5) : Math.round(width * bounds.height / bounds.width);
   // Sample the actual icon placement so the native shape and moss stay aligned.
-  return createField(element, width, height, ink => paintImage(ink, image,
+  return createField(element, width, height, (ink, includeInterior) => paintImage(ink, image,
     (shape.left - bounds.left) / bounds.width * width,
     (shape.top - bounds.top) / bounds.height * height,
-    shape.width / bounds.width * width, shape.height / bounds.height * height, fillInterior), spreadRate);
+    shape.width / bounds.width * width, shape.height / bounds.height * height, fillInterior || (includeInterior && growInterior)), spreadRate, growInterior);
 }
 
 export function createWordmarkField(element, previous, imageOptions = {}) {
@@ -128,14 +135,15 @@ export function createWordmarkField(element, previous, imageOptions = {}) {
     canvas.style.width = `${width * 1.5}px`;
     canvas.style.height = `${height * 1.5}px`;
   }
-  return createField(element, width, height, ink => {
+  return createField(element, width, height, (ink, includeInterior) => {
+    ink.save();
     ink.scale(1 / 1.5, 1 / 1.5);
     for (const part of element.querySelectorAll('[data-ink]')) {
       const box = part.getBoundingClientRect();
       const x = 24 + box.left - bounds.left;
       const y = 24 + box.top - bounds.top;
       if (part instanceof HTMLImageElement) {
-        paintImage(ink, part, x, y, box.width, box.height, imageOptions.fillInterior);
+        paintImage(ink, part, x, y, box.width, box.height, imageOptions.fillInterior || (includeInterior && imageOptions.growInterior));
       } else {
         const style = getComputedStyle(part);
         ink.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
@@ -145,7 +153,8 @@ export function createWordmarkField(element, previous, imageOptions = {}) {
         ink.fillText(part.textContent, x, y + baseline);
       }
     }
-  });
+    ink.restore();
+  }, 1, imageOptions.growInterior);
 }
 
 function drawLayer(field, z) {

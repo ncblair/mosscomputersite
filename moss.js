@@ -1,6 +1,7 @@
 // Portable three-layer cellular automaton. One step represents 100 ms.
 // Depth 0: behind the shape; 1: solid shape and its fringe; 2: in front.
 // Cell values: 0 = bare, 1 = new growth, 255 = mature moss.
+// Habitat: 0 = unavailable, 1 = fringe, 2 = seeding surface, 3 = non-seeding surface.
 export class MossGrowth {
   constructor(width, height, habitat, random = Math.random, spreadRate = 1) {
     this.width = width;
@@ -21,7 +22,7 @@ export class MossGrowth {
   }
 
   isSolid(index) {
-    return Math.floor(index / this.area) === 1 && this.habitat[index % this.area] === 2;
+    return Math.floor(index / this.area) === 1 && this.habitat[index % this.area] >= 2;
   }
 
   setBlocked(blocked) {
@@ -61,7 +62,7 @@ export class MossGrowth {
             // Cross-depth growth goes around the shape, never through it.
             if (z > 0 && cells[i - area] > 12) influence += .7;
             if (z < this.depth - 1 && cells[i + area] > 12) influence += .7;
-            const chance = influence * (habitat[plane] === 2 ? .04 : .012) * this.spreadRate;
+            const chance = influence * (habitat[plane] >= 2 ? .04 : .012) * this.spreadRate;
             if (influence && this.random() < chance) next[i] = 1;
           }
         }

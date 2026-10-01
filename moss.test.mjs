@@ -140,3 +140,43 @@ test('slower spread reduces births without changing maturation or drying', () =>
     assert.equal(growth.cells[12], 13);
   }
 });
+
+test('non-seeding surfaces retain their fringe and never start colonies', () => {
+  const width = 25;
+  const surface = new Uint8Array(width * width);
+  surface[12 * width + 12] = 3;
+  const habitat = createHabitat(width, width, surface);
+  assert.equal(habitat[12 * width + 12], 3);
+  assert.equal(habitat[12 * width + 18], 1);
+  assert.equal(habitat[12 * width + 19], 0);
+  const growth = new MossGrowth(width, width, habitat, () => 0);
+  assert.equal(growth.spawners.length, 0);
+  growth.setBlocked(true);
+  for (let n = 0; n < 100; n++) growth.step();
+  assert(growth.cells.every(age => age === 0));
+});
+
+test('moss spreads onto both screen faces without spawning there or entering the middle', () => {
+  const width = 9;
+  const habitat = new Uint8Array(width * width);
+  for (let y = 1; y <= 7; y++) {
+    for (let x = 1; x <= 7; x++) habitat[y * width + x] = x === 1 || x === 7 || y === 1 || y === 7 ? 2 : 3;
+  }
+  const growth = new MossGrowth(width, width, habitat, () => 0);
+  growth.setBlocked(true);
+  assert(growth.cells.every((age, i) => !age || habitat[i % growth.area] === 2));
+  growth.cells.fill(0);
+  growth.step();
+  assert(growth.cells.every((age, i) => !age || habitat[i % growth.area] === 2));
+  // Place mature moss on each face of the bezel, then let it spread inward.
+  for (const z of [0, 2]) growth.cells[z * growth.area + width + 4] = 16;
+  for (let n = 0; n < 100; n++) growth.step();
+  const screen = 4 * width + 4;
+  assert(growth.cells[screen] > 0);
+  assert(growth.cells[2 * growth.area + screen] > 0);
+  assert.equal(growth.cells[growth.area + screen], 0);
+  assert(growth.cells.every((age, i) => !age || !growth.isSolid(i)));
+  growth.setBlocked(false);
+  for (let n = 0; n < 60; n++) growth.step();
+  assert(growth.cells.every(age => age === 0));
+});
