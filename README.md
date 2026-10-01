@@ -1,4 +1,4 @@
-# Moss
+# Moss Computer
 
 Static GitHub Pages site. No dependencies or build step.
 
@@ -6,12 +6,12 @@ Static GitHub Pages site. No dependencies or build step.
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000. Tap the phone to block apps in the preview: moss grows on the star while blocked and dries out after unblocking. Reduced-motion mode displays a still image. Green is reserved for the moss.
+Open http://localhost:8000. The landing page uses the geometric computer SVG and a text “Moss Computer” title. Moss begins growing on the title before interaction. Tap the phone to block apps in the preview: moss grows on the computer while blocked and dries out after unblocking. Reduced-motion mode displays still images. Green is reserved for the moss.
 
-`moss.js` is the cellular automaton; `script.js` builds its habitat and renders it. The simulation has three depth slices. The star occupies the solid middle slice and seeds moss on both faces. Growth favors downward neighbors and crosses depth around the star's edges. The renderer draws rear moss, the occluding star, then middle and front moss.
+`moss.js` is the cellular automaton; `moss-field.js` builds and renders its habitat; `script.js` connects the landing-page interaction. The phone uses a 144 × 177 grid; title cells cover about 1.5 CSS pixels. Each field has three depth slices. The shape blocks the middle slice and seeds moss on both faces. Enclosed white screen/bezel regions support propagation without spawning colonies. A circular six-cell fringe gives every direction equal room to grow. Growth has no downward incentive or falling strands.
 
-`setBlocked(boolean)` changes the simulation's blocking state; `step()` advances one 100 ms tick. The website uses accelerated growth and pauses updates when hidden. The rules are separate from the browser so they can be ported to the iPhone app, which is not changed here.
+Native text and SVG sit between rear moss and middle/front moss. Title masks follow browser font metrics and rebuild on resize. Two reusable ImageData buffers draw each field. Updates run at 10 ticks per second, pause when the document is hidden, and stop for the phone once unblocked growth clears.
 
-Run simulation checks with `node --test moss.test.mjs`.
+`setBlocked(boolean)` changes the blocking state; `step()` advances one 100 ms tick. The rules are separate from the browser so they can be ported to the iPhone app, which is not changed here. Run simulation checks with `node --test moss.test.mjs`.
 
-GitHub Pages publishes the repository root on `main`. `CNAME` keeps the custom domain at mosscomputer.com. Work goes to branches and draft PRs targeting `main`.
+GitHub Pages publishes the repository root on `main`. `CNAME` keeps the custom domain at mosscomputer.com. Work goes to branches and draft PRs targeting `main`. Icon studies remain on the separate `codex/denser-moss` prototype branch.
