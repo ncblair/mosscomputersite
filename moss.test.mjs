@@ -60,14 +60,14 @@ test('matching random sequences produce matching independent simulations', () =>
 });
 
 
-test('blocked growth stays at its original cells as colonies mature', () => {
+test('young blocked growth stays in place as colonies mature', () => {
   const growth = simulation();
   growth.setBlocked(true);
   for (let step = 0; step < 300; step++) {
     const before = growth.cells.slice();
     growth.step();
     before.forEach((age, index) => {
-      if (age) assert(growth.cells[index] >= age, `Growth detached at cell ${index}`);
+      if (age && age < 255) assert(growth.cells[index] >= age, `Growth detached at cell ${index}`);
     });
   }
 });
@@ -201,44 +201,72 @@ test('coverage probability tapers between 100% and 180% of the surface', () => {
   assert.equal(growth.growthProbability(30), 0);
 });
 
-test('coverage taper suppresses spreading and independent new colonies', () => {
-  const normal = new MossGrowth(5, 5, new Uint8Array(25).fill(2), (() => {
+test('crowding behind the surface inhibits new colonies on its front', () => {
+  const growth = new MossGrowth(5, 5, new Uint8Array(25).fill(2), (() => {
     let sample = 0;
-    return () => sample++ ? .75 : .057;
+    return () => sample++ === 1 ? .75 : 0;
   })());
-  const tapered = new MossGrowth(5, 5, new Uint8Array(25).fill(2), () => .057);
-  for (const growth of [normal, tapered]) {
-    growth.blocked = true;
-    growth.cells.fill(255, 0, growth.area);
-  }
-  // Spaced front colonies have at most two neighbors influencing a bare cell.
-  for (const plane of [0, 4, 10, 14, 20, 24]) tapered.cells[2 * tapered.area + plane] = 255;
-  normal.step();
-  tapered.step();
-  assert.equal(normal.cells.filter(age => age > 0).length, 26);
-  assert.equal(tapered.cells.filter(age => age > 0).length, 31);
+  growth.blocked = true;
+  growth.cells.fill(16, 0, growth.area);
+  growth.step();
+  assert.equal(growth.cells.filter(age => age > 0).length, 25);
+  assert(growth.cells.slice(2 * growth.area).every(age => age === 0));
 });
 
-test('births across all layers respect the cap, settle, then wake for drying and regrowth', () => {
+test('births across all layers respect the cap, slow down, then dry and regrow', () => {
   const habitat = new Uint8Array(25).fill(1);
   habitat.fill(2, 0, 5);
   const growth = new MossGrowth(5, 5, habitat, () => 0);
   growth.blocked = true;
   for (const index of [0, 1, 2, 3, 4, growth.area + 5, 2 * growth.area]) growth.cells[index] = 255;
-  assert(growth.needsUpdate());
+  assert(growth.updateDelay());
   growth.step();
   assert.equal(growth.cells.filter(age => age > 0).length, 9);
-  assert(growth.needsUpdate()); // The last birth must still mature.
+  assert(growth.updateDelay()); // The last birth must still mature.
   for (let step = 0; step < 130; step++) growth.step();
   assert.equal(growth.cells.filter(age => age > 0).length, 9);
-  assert.equal(growth.needsUpdate(), false);
+  assert.equal(growth.updateDelay(), 1000);
   growth.setBlocked(false);
-  assert(growth.needsUpdate());
+  assert.equal(growth.updateDelay(), 100);
   for (let step = 0; step < 60; step++) growth.step();
-  assert.equal(growth.needsUpdate(), false);
+  assert.equal(growth.updateDelay(), 0);
   assert(growth.cells.every(age => age === 0));
   growth.setBlocked(true);
-  assert(growth.needsUpdate());
+  assert(growth.updateDelay());
+});
+
+test('an edge approaching two patches is inhibited while an open edge grows', () => {
+  const width = 17;
+  const open = new MossGrowth(width, width, new Uint8Array(width * width).fill(2), () => .025);
+  const crowded = new MossGrowth(width, width, new Uint8Array(width * width).fill(2), () => .025);
+  const center = 8 * width + 8;
+  for (const growth of [open, crowded]) {
+    growth.blocked = true;
+    growth.cells[2 * growth.area + center - 1] = 16;
+  }
+  for (let y = 0; y < width; y++) {
+    for (let x = 1; x <= 15; x++) if (x !== 8) crowded.cells[y * width + x] = 16;
+  }
+  open.step();
+  crowded.step();
+  assert.equal(open.cells[2 * open.area + center], 1);
+  assert.equal(crowded.cells[2 * crowded.area + center], 0);
+  assert.equal(crowded.localCrowding(center), 238 / 289);
+});
+
+test('crowding counts each projected position once and crowded old cells can die and regrow', () => {
+  const growth = new MossGrowth(5, 5, new Uint8Array(25).fill(2), () => .9995);
+  growth.blocked = true;
+  growth.cells.fill(255, 0, growth.area);
+  growth.cells[2 * growth.area + 12] = 16;
+  growth.step();
+  assert.equal(growth.localCrowding(12), 1);
+  assert(growth.cells.slice(0, growth.area).every(age => age === 0));
+  assert.equal(growth.cells[2 * growth.area + 12], 18);
+  growth.random = () => 0;
+  growth.step();
+  assert.equal(growth.localCrowding(12), 1 / 25);
+  assert(growth.cells.some(age => age === 1));
 });
 
 test('initial colonies respect small surface budgets and empty fields can sleep', () => {
@@ -246,10 +274,10 @@ test('initial colonies respect small surface budgets and empty fields can sleep'
     let sample = 0;
     return () => (sample++ % 4) / 4;
   })());
-  assert.equal(growth.needsUpdate(), false);
+  assert.equal(growth.updateDelay(), 0);
   growth.setBlocked(true);
   assert.equal(growth.cells.filter(age => age > 0).length, 4);
   const empty = new MossGrowth(2, 1, new Uint8Array(2));
   empty.setBlocked(true);
-  assert.equal(empty.needsUpdate(), false);
+  assert.equal(empty.updateDelay(), 0);
 });

@@ -9,6 +9,7 @@ await document.fonts.ready;
 const phone = createIconField(screen, icon, { growInterior: true });
 let titleMoss;
 let timer;
+const lastUpdates = new WeakMap();
 function createTitle() {
   const next = createWordmarkField(title, titleMoss);
   if (next === titleMoss) return;
@@ -47,19 +48,29 @@ reducedMotion.addEventListener('change', () => {
   syncAnimation();
 });
 function syncAnimation() {
-  clearInterval(timer);
+  clearTimeout(timer);
   timer = undefined;
-  if (document.hidden || reducedMotion.matches || (!titleMoss.growth.needsUpdate() && !phone.growth.needsUpdate())) return;
-  timer = setInterval(() => {
-    let updating = false;
+  if (document.hidden || reducedMotion.matches) return;
+  const now = performance.now();
+  let wait = Infinity;
+  for (const field of [titleMoss, phone]) {
+    const delay = field.growth.updateDelay();
+    if (!delay) continue;
+    if (!lastUpdates.has(field)) lastUpdates.set(field, now);
+    wait = Math.min(wait, Math.max(0, lastUpdates.get(field) + delay - now));
+  }
+  if (wait === Infinity) return;
+  timer = setTimeout(() => {
+    const now = performance.now();
     for (const field of [titleMoss, phone]) {
-      if (!field.growth.needsUpdate()) continue;
+      const delay = field.growth.updateDelay();
+      if (!delay || now - lastUpdates.get(field) < delay) continue;
       field.growth.step();
       draw(field);
-      updating = true;
+      lastUpdates.set(field, now);
     }
-    if (!updating) syncAnimation();
-  }, 100);
+    syncAnimation();
+  }, Math.ceil(wait));
 }
 document.addEventListener('visibilitychange', syncAnimation);
 draw(phone);
