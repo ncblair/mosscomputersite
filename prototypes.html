@@ -15,11 +15,29 @@
     <header><a href="index.html">Moss</a><span>Icon studies</span></header>
     <main>
       <div class="study-heading">
-        <div><h1>Stone studies</h1><p>Equal growth in every direction.</p></div>
+        <div><h1>Icon studies</h1><p>Equal growth in every direction.</p></div>
         <div class="controls"><button id="grow" type="button">Grow all</button><button id="reset" type="button">Reset</button></div>
       </div>
-      <div class="studies" id="studies"></div>
-      <p class="study-note">Tap an icon to grow or dry its moss. “Try on site” opens the full landing page with that icon.</p>
+      <section aria-labelledby="computer-heading">
+        <h2 id="computer-heading">Moss Computer</h2>
+        <div class="studies computer-studies" id="computers"></div>
+      </section>
+      <section aria-labelledby="other-heading">
+        <h2 id="other-heading">Other glyphs</h2>
+        <div class="studies" id="studies"></div>
+      </section>
+      <section class="wordmark-study" aria-labelledby="wordmark-heading">
+        <h2 id="wordmark-heading">River stone wordmark</h2>
+        <button class="wordmark-preview" type="button" aria-pressed="false" aria-label="Grow moss on the river stone wordmark">
+          <span class="wordmark" aria-hidden="true">
+            <canvas class="moss-layer back"></canvas>
+            <span data-ink>M</span><img data-ink class="wordmark-stone" src="assets/river.svg" width="100" height="100" alt=""><span data-ink>ss</span>
+            <canvas class="moss-layer front"></canvas>
+          </span>
+        </button>
+        <p class="wordmark-caption">Moss / river stone “o” <span class="status" role="status">Bare</span></p>
+      </section>
+      <p class="study-note">Tap a preview to grow or dry its moss. “Try on site” opens the full landing page with that icon.</p>
     </main>
     <footer><a href="index.html">Back to Moss</a><span>Moss © 2026</span></footer>
   </div>

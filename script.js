@@ -1,34 +1,20 @@
-import { createField, draw, settle } from './moss-field.js';
+import { createIconField, createWordmarkField, draw, settle } from './moss-field.js';
 import { icons } from './icons.js';
 
 const screen = document.querySelector('.screen');
 const title = document.getElementById('name');
-const iconField = document.querySelector('.icon-field');
 const icon = document.querySelector('.icon');
 const selectedIcon = icons.find(item => item.id === new URLSearchParams(location.search).get('icon')) || icons[0];
 icon.src = selectedIcon.src;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 await icon.decode();
 await document.fonts.ready;
-const phone = createField(iconField, 144, 177, ink => ink.drawImage(icon, 30, 24, 84, 84));
+const phone = createIconField(screen, icon, selectedIcon.fullHeight);
 let titleMoss;
 function createTitle() {
-  const style = getComputedStyle(title);
-  const width = Math.ceil((title.offsetWidth + 48) / 1.5);
-  const height = Math.ceil((title.offsetHeight + 48) / 1.5);
-  if (titleMoss && titleMoss.growth.width === width && titleMoss.growth.height === height) return;
-  for (const canvas of title.querySelectorAll('canvas')) {
-    canvas.style.width = `${width * 1.5}px`;
-    canvas.style.height = `${height * 1.5}px`;
-  }
-  titleMoss = createField(title, width, height, ink => {
-    ink.scale(1 / 1.5, 1 / 1.5);
-    ink.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    ink.letterSpacing = style.letterSpacing;
-    const metrics = ink.measureText('Moss');
-    const baseline = (parseFloat(style.lineHeight) - metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2 + metrics.fontBoundingBoxAscent;
-    ink.fillText('Moss', 24, 24 + baseline);
-  });
+  const next = createWordmarkField(title, titleMoss);
+  if (next === titleMoss) return;
+  titleMoss = next;
   titleMoss.growth.setBlocked(true);
   // Begin with a little growth before the phone receives any interaction.
   settle(titleMoss, 65);

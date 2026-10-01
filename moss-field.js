@@ -46,6 +46,49 @@ export function createField(element, width, height, paintShape) {
   };
 }
 
+export function createIconField(element, image, fullHeight = false) {
+  const container = element.querySelector('.icon-field');
+  container.classList.toggle('full-height', fullHeight);
+  const bounds = container.getBoundingClientRect();
+  const shape = image.getBoundingClientRect();
+  const width = fullHeight ? Math.ceil(bounds.width / 1.5) : 144;
+  const height = fullHeight ? Math.ceil(bounds.height / 1.5) : Math.round(width * bounds.height / bounds.width);
+  // Sample the actual icon placement so the native shape and moss stay aligned.
+  return createField(element, width, height, ink => ink.drawImage(image,
+    (shape.left - bounds.left) / bounds.width * width,
+    (shape.top - bounds.top) / bounds.height * height,
+    shape.width / bounds.width * width, shape.height / bounds.height * height));
+}
+
+export function createWordmarkField(element, previous) {
+  const bounds = element.getBoundingClientRect();
+  const width = Math.ceil((bounds.width + 48) / 1.5);
+  const height = Math.ceil((bounds.height + 48) / 1.5);
+  if (previous && previous.growth.width === width && previous.growth.height === height) return previous;
+  for (const canvas of element.querySelectorAll('canvas')) {
+    canvas.style.width = `${width * 1.5}px`;
+    canvas.style.height = `${height * 1.5}px`;
+  }
+  return createField(element, width, height, ink => {
+    ink.scale(1 / 1.5, 1 / 1.5);
+    for (const part of element.querySelectorAll('[data-ink]')) {
+      const box = part.getBoundingClientRect();
+      const x = 24 + box.left - bounds.left;
+      const y = 24 + box.top - bounds.top;
+      if (part instanceof HTMLImageElement) {
+        ink.drawImage(part, x, y, box.width, box.height);
+      } else {
+        const style = getComputedStyle(part);
+        ink.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        ink.letterSpacing = style.letterSpacing;
+        const metrics = ink.measureText(part.textContent);
+        const baseline = (box.height - metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2 + metrics.fontBoundingBoxAscent;
+        ink.fillText(part.textContent, x, y + baseline);
+      }
+    }
+  });
+}
+
 function drawLayer(field, z) {
   const { growth } = field;
   const pixels = (z === 0 ? field.backPixels : field.frontPixels).data;

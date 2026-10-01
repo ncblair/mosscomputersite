@@ -18,6 +18,8 @@ h1 .moss-layer { left: -24px; top: -24px; }
 .icon-field { display: block; position: relative; width: 220px; aspect-ratio: 144 / 177; max-width: 85%; }
 .icon-field .moss-layer { inset: 0; width: 100%; height: 100%; }
 .icon { position: absolute; width: 58.3333%; height: auto; left: 20.8333%; top: 13.5593%; }
+.icon-field.full-height { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; aspect-ratio: auto; overflow: hidden; border-radius: inherit; }
+.icon-field.full-height .icon { inset: 0; width: 100%; height: 100%; }
 .screen[aria-pressed="true"] .icon { filter: invert(1); }
 .screen[aria-pressed="true"] { background: #111; color: #fff; }
 .screen:focus-visible { outline: 3px solid #111; outline-offset: 5px; }

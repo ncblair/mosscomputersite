@@ -22,6 +22,8 @@ GitHub Pages publishes the repository root on `main`. `CNAME` keeps the custom d
 
 ## Icon prototypes
 
-Open `prototypes.html` for the star and four original SVG alternatives: River stone, Fieldstone, Split boulder, and Cairn. Use **Grow all**, **Reset**, or tap an individual icon to compare bare and moss-covered outlines. **Try on site** opens `index.html?icon=<id>` using the same renderer and rules. Query values are limited to the entries in `icons.js`; an unknown value uses the star.
+Open `prototypes.html` to compare **Moss Computer** with three outlined computer glyphs (2, 3.5, and 6-unit strokes) and a filled silhouette. The page also includes the star, outlined River stone, Solid fieldstone, Solid river stone, and a filled Tree trunk, plus a **Moss** wordmark with the river stone replacing its “o.” Use **Grow all**, **Reset**, or tap an individual preview to compare bare and moss-covered shapes. **Try on site** opens `index.html?icon=<id>` using the same renderer and rules. Query values are limited to the entries in `icons.js`; an unknown value uses the star.
 
-`docs/icon-studies.png` shows the bare icons above a sample of equal-direction moss growth. These are proposals; the landing page defaults to the star.
+`docs/computer-studies.png` compares the four computer variants with and without moss. `docs/icon-studies.png` and `docs/icon-studies-grown.png` show all previews bare and with equal-direction moss growth. These are proposals; the landing page defaults to the star.
+
+The tree trunk fills the preview vertically, from roots at the bottom through the top edge. Its moss grid uses approximately 1.5 CSS pixels per cell; regular icons keep a 144-column grid with height following their preview's aspect ratio. The habitat is sampled from the icon's actual placement so both rendering layers align. The landing-page title and river stone wordmark share the same text/image mask operation, using native font metrics and rebuilding when their size changes.
