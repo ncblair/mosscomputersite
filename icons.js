@@ -9,8 +9,8 @@ export const icons = [
   { id: 'computer-heavy', name: 'Computer / heavy (6)', src: 'assets/computer-heavy.svg' },
   { id: 'computer-solid', name: 'Computer / filled', src: 'assets/computer-solid.svg' },
   { id: 'computer-thin-surface', name: 'Thin / surface growth, slower', src: 'assets/computer-thin.svg', fillInterior: true, spreadRate: .45 },
-  { id: 'computer-image-1', name: 'Your computer / dark screen', src: 'assets/computer-image-1.png', fillInterior: true },
-  { id: 'computer-image-2', name: 'Your computer / light screen', src: 'assets/computer-image-2.png', fillInterior: true },
+  { id: 'computer-image-1', name: 'Your computer / dark screen', src: 'assets/computer-image-1.png' },
+  { id: 'computer-image-2', name: 'Your computer / light screen', src: 'assets/computer-image-2.png' },
 ];
 
 export const defaultIcon = icons.find(icon => icon.id === 'computer-image-1');
