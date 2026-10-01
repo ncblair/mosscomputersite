@@ -52,8 +52,8 @@ export class MossGrowth {
               for (let dx = -1; dx <= 1; dx++) {
                 if ((!dx && !dy) || x + dx < 0 || x + dx >= width || y + dy < 0 || y + dy >= height) continue;
                 if (cells[z * area + (y + dy) * width + x + dx] > 12) {
-                  // Favor downward spread without moving or detaching existing cells.
-                  influence += dy === -1 ? (dx === 0 ? 3.5 : 1.4) : dy === 0 ? .65 : .12;
+                  // Every neighbor in this slice contributes equally.
+                  influence++;
                 }
               }
             }
