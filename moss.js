@@ -15,7 +15,9 @@ export class MossGrowth {
     this.next = new Uint8Array(this.cells.length);
     this.blocked = false;
     this.spawners = [];
+    this.surfacePixels = 0;
     habitat.forEach((value, i) => {
+      if (value >= 2) this.surfacePixels++;
       // The solid middle slice seeds its two exposed faces.
       if (value === 2) this.spawners.push(i, 2 * this.area + i);
     });
@@ -28,14 +30,36 @@ export class MossGrowth {
   setBlocked(blocked) {
     this.blocked = blocked;
     if (blocked && !this.cells.some(value => value > 0)) {
-      for (let n = 0; n < 12 && this.spawners.length; n++) {
+      const seeds = Math.min(12, Math.ceil(this.surfacePixels * 1.5));
+      for (let n = 0; n < seeds && this.spawners.length; n++) {
         this.cells[this.spawners[Math.floor(this.random() * this.spawners.length)]] = 1;
       }
     }
   }
 
+  growthProbability(occupiedCells) {
+    // Full speed through one surface's worth of moss, zero at 1.5 surfaces.
+    if (!this.surfacePixels) return 0;
+    return Math.max(0, Math.min(1, 3 - 2 * occupiedCells / this.surfacePixels));
+  }
+
+  needsUpdate() {
+    if (!this.blocked) return this.cells.some(age => age > 0);
+    let occupied = 0;
+    for (const age of this.cells) {
+      if (!age) continue;
+      if (age < 255) return true;
+      occupied++;
+    }
+    return this.growthProbability(occupied) > 0 && (occupied > 0 || this.spawners.length > 0);
+  }
+
   step() {
     const { width, height, area, cells, next, habitat } = this;
+    let occupied = 0;
+    for (const age of cells) if (age) occupied++;
+    const probability = this.growthProbability(occupied);
+    let remainingBirths = Math.max(0, Math.ceil(this.surfacePixels * 1.5) - occupied);
     next.fill(0);
     for (let z = 0; z < this.depth; z++) {
       for (let y = 0; y < height; y++) {
@@ -48,7 +72,7 @@ export class MossGrowth {
             next[i] = Math.max(0, age - 5 - Math.floor(this.random() * 8));
           } else if (age) {
             next[i] = Math.min(255, age + 2);
-          } else {
+          } else if (remainingBirths > 0) {
             let influence = 0;
             for (let dy = -1; dy <= 1; dy++) {
               for (let dx = -1; dx <= 1; dx++) {
@@ -62,14 +86,17 @@ export class MossGrowth {
             // Cross-depth growth goes around the shape, never through it.
             if (z > 0 && cells[i - area] > 12) influence += .7;
             if (z < this.depth - 1 && cells[i + area] > 12) influence += .7;
-            const chance = influence * (habitat[plane] >= 2 ? .04 : .012) * this.spreadRate;
-            if (influence && this.random() < chance) next[i] = 1;
+            const chance = influence * (habitat[plane] >= 2 ? .04 : .012) * this.spreadRate * probability;
+            if (influence && this.random() < chance) {
+              next[i] = 1;
+              remainingBirths--;
+            }
           }
         }
       }
     }
     // Occasional new colonies on either face while blocking remains active.
-    if (this.blocked && this.spawners.length && this.random() < .06 * this.spreadRate) {
+    if (this.blocked && remainingBirths > 0 && this.spawners.length && this.random() < .06 * this.spreadRate * probability) {
       const i = this.spawners[Math.floor(this.random() * this.spawners.length)];
       if (!next[i]) next[i] = 1;
     }

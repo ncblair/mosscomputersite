@@ -8,6 +8,7 @@ await icon.decode();
 await document.fonts.ready;
 const phone = createIconField(screen, icon, { growInterior: true });
 let titleMoss;
+let timer;
 function createTitle() {
   const next = createWordmarkField(title, titleMoss);
   if (next === titleMoss) return;
@@ -16,6 +17,7 @@ function createTitle() {
   // Begin with a little growth before the phone receives any interaction.
   settle(titleMoss, 65);
   draw(titleMoss);
+  syncAnimation();
 }
 createTitle();
 new ResizeObserver(createTitle).observe(title);
@@ -37,19 +39,27 @@ screen.addEventListener('click', () => {
   document.getElementById('preview-note').textContent = blocked ? 'Tap to unblock' : 'Tap to block';
   settlePhoneForReducedMotion();
   draw(phone);
+  syncAnimation();
 });
 reducedMotion.addEventListener('change', () => {
   settlePhoneForReducedMotion();
   draw(phone);
+  syncAnimation();
 });
-setInterval(() => {
-  if (document.hidden || reducedMotion.matches) return;
-  titleMoss.growth.step();
-  draw(titleMoss);
-  // Avoid simulation and painting once the unblocked phone has cleared.
-  if (phone.growth.blocked || phone.growth.cells.some(age => age > 0)) {
-    phone.growth.step();
-    draw(phone);
-  }
-}, 100);
+function syncAnimation() {
+  clearInterval(timer);
+  timer = undefined;
+  if (document.hidden || reducedMotion.matches || (!titleMoss.growth.needsUpdate() && !phone.growth.needsUpdate())) return;
+  timer = setInterval(() => {
+    let updating = false;
+    for (const field of [titleMoss, phone]) {
+      if (!field.growth.needsUpdate()) continue;
+      field.growth.step();
+      draw(field);
+      updating = true;
+    }
+    if (!updating) syncAnimation();
+  }, 100);
+}
+document.addEventListener('visibilitychange', syncAnimation);
 draw(phone);
