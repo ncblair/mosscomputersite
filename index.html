@@ -1,85 +1,46 @@
 <!doctype html>
 <html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Moss Computer is a minimal iPhone app for blocking distracting apps with an NFC tag. Simple software. Less phone.">
-<meta name="theme-color" content="#ffffff">
-<meta property="og:title" content="Moss Computer">
-<meta property="og:description" content="Simple software. Less phone. An iPhone app and an NFC tag.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://mosscomputer.com/">
-<link rel="canonical" href="https://mosscomputer.com/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='white'/%3E%3Cpath d='M50 5 55 38 82 18 62 45 95 50 62 55 82 82 55 62 50 95 45 62 18 82 38 55 5 50 38 45 18 18 45 38Z'/%3E%3C/svg%3E">
-<title>Moss Computer</title>
-<style>
-  * { box-sizing: border-box; }
-  body { margin: 0; background: #fff; color: #111; font-family: Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-  .page { max-width: 1440px; margin: auto; padding: 32px 48px 24px; }
-  header, footer { display: flex; justify-content: space-between; gap: 20px; font: 12px/1.5 ui-monospace, monospace; }
-  header { padding-bottom: 20px; border-bottom: 1px solid; }
-  .hero { display: grid; grid-template-columns: 1.8fr 1fr; align-items: center; gap: 64px; padding: 76px 0; }
-  h1 { margin: 0 0 36px; font-size: clamp(64px, 10.5vw, 152px); font-weight: 500; line-height: .88; letter-spacing: -.075em; }
-  .intro { max-width: 390px; margin: 0; font-size: 20px; line-height: 1.45; letter-spacing: -.025em; }
-  .soon { margin: 24px 0 0; font: 12px/1.5 ui-monospace, monospace; }
-  figure { width: 248px; max-width: 100%; margin: 0 auto; }
-  .screen { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 9 / 17; padding: 0; border: 1px solid #111; border-radius: 28px; background: #fff; color: #111; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .screen::before { content: ""; position: absolute; top: 20px; left: 20px; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-  .screen svg { width: 120px; fill: currentColor; }
-  .screen[aria-pressed="true"] { background: #111; color: #fff; }
-  .screen:focus-visible { outline: 3px solid #111; outline-offset: 5px; }
-  figcaption { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; font: 11px/1.5 ui-monospace, monospace; }
-  .notes { display: grid; grid-template-columns: 1.8fr 1fr; gap: 64px; padding: 28px 0 36px; border-top: 1px solid; }
-  .notes p { max-width: 440px; margin: 0; font-size: 19px; line-height: 1.5; letter-spacing: -.02em; }
-  ol { margin: 0; padding: 0; list-style: none; counter-reset: steps; font: 12px/1.9 ui-monospace, monospace; }
-  li { counter-increment: steps; }
-  li::before { content: "0" counter(steps) " / "; }
-  footer { padding-top: 18px; border-top: 1px solid; }
-  @media (max-width: 760px) {
-    .page { padding: 24px; }
-    .hero, .notes { grid-template-columns: 1fr; gap: 40px; }
-    .hero { padding: 48px 0; }
-    h1 { font-size: clamp(60px, 15vw, 108px); margin-bottom: 28px; }
-    .intro { font-size: 18px; }
-    figure { width: 220px; }
-    .notes { gap: 24px; }
-    .notes p { font-size: 18px; }
-  }
-</style>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Moss is an iPhone app for blocking distracting apps with an NFC tag.">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:title" content="Moss">
+  <meta property="og:description" content="Block distracting apps with a tap of an NFC tag.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mosscomputer.com/">
+  <link rel="canonical" href="https://mosscomputer.com/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='white'/%3E%3Ctext x='50' y='77' text-anchor='middle' font-size='90'%3E✴%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <title>Moss</title>
+  <script type="module" src="script.js"></script>
+</head>
 <body>
-<div class="page">
-  <header><span>moss computer</span><span>iPhone + NFC</span></header>
-  <main>
-    <section class="hero" aria-labelledby="name">
-      <div>
-        <h1 id="name">Moss<br>Computer.</h1>
-        <p class="intro">A little space between you and your phone. Block distracting apps with a tap of an NFC tag.</p>
-        <p class="soon">In development. Built to be affordable.</p>
-      </div>
-      <figure>
-        <button class="screen" type="button" aria-label="Try the app preview: toggle app blocking" aria-pressed="false" aria-describedby="preview-note">
-          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 0 55 38 85 15 62 45 100 50 62 55 85 85 55 62 50 100 45 62 15 85 38 55 0 50 38 45 15 15 45 38Z"/></svg>
-        </button>
-        <figcaption><span id="preview-note">Preview / tap</span><span id="state" role="status">Apps available</span></figcaption>
-      </figure>
-    </section>
-    <section class="notes" aria-label="How it works">
-      <p>Simple software. Simple hardware.<br>A small tool for spending more time<br>on everything else.</p>
-      <ol>
-        <li>Choose the apps to block.</li>
-        <li>Pair an NFC tag. Keep it off your desk.</li>
-        <li>Tap to block. Tap again to unblock.</li>
-      </ol>
-    </section>
-  </main>
-  <footer><span>Less phone. More world.</span><span>Moss Computer © 2026</span></footer>
-</div>
-<script>
-  const screen = document.querySelector('.screen');
-  screen.addEventListener('click', () => {
-    const blocked = screen.getAttribute('aria-pressed') !== 'true';
-    screen.setAttribute('aria-pressed', String(blocked));
-    document.getElementById('state').textContent = blocked ? 'Apps blocked' : 'Apps available';
-  });
-</script>
+  <div class="page">
+    <header><span>Moss</span><span>iPhone + NFC</span></header>
+    <main>
+      <section class="hero" aria-labelledby="name">
+        <div>
+          <h1 id="name">Moss</h1>
+          <p class="intro">Block distracting apps with a tap of an NFC tag.</p>
+          <p class="soon">In development.</p>
+        </div>
+        <figure>
+          <button class="screen" type="button" aria-label="Block apps in the preview and grow moss" aria-pressed="false" aria-describedby="preview-note">
+            <canvas id="moss" width="144" height="144" aria-hidden="true"></canvas>
+          </button>
+          <figcaption><span id="preview-note">Tap to block</span><span id="state" role="status">Apps available</span></figcaption>
+        </figure>
+      </section>
+      <section class="notes" aria-label="How it works">
+        <ol>
+          <li>Choose your apps.</li>
+          <li>Pair an NFC tag.</li>
+          <li>Tap to block or unblock.</li>
+        </ol>
+      </section>
+    </main>
+    <footer><span>Moss © 2026</span></footer>
+  </div>
 </body>
 </html>

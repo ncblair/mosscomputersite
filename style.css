@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: #111; font-family: Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+.page { max-width: 1440px; margin: auto; padding: 32px 48px 24px; }
+header, footer { display: flex; justify-content: space-between; gap: 20px; font: 12px/1.5 ui-monospace, monospace; }
+header { padding-bottom: 20px; border-bottom: 1px solid; }
+.hero { display: grid; grid-template-columns: 1.8fr 1fr; align-items: center; gap: 64px; padding: 76px 0; min-height: 640px; }
+h1 { margin: 0 0 36px; font-size: clamp(80px, 12vw, 172px); font-weight: 500; line-height: .88; letter-spacing: -.075em; }
+.intro { max-width: 350px; margin: 0; font-size: 20px; line-height: 1.45; letter-spacing: -.025em; }
+.soon { margin: 24px 0 0; color: #666; font: 12px/1.5 ui-monospace, monospace; }
+figure { width: 280px; max-width: 100%; margin: 0 auto; }
+.screen { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 9 / 17; padding: 0; border: 1px solid #111; border-radius: 28px; background: #fff; color: #111; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color .35s, color .35s; }
+.screen::before { content: ""; position: absolute; top: 20px; left: 20px; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.screen canvas { width: 220px; max-width: 85%; aspect-ratio: 1; image-rendering: pixelated; }
+.screen[aria-pressed="true"] { background: #111; color: #fff; }
+.screen:focus-visible { outline: 3px solid #111; outline-offset: 5px; }
+figcaption { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; font: 11px/1.5 ui-monospace, monospace; }
+.notes { display: grid; grid-template-columns: 1.8fr 1fr; gap: 64px; padding: 28px 0 36px; border-top: 1px solid; }
+ol { grid-column: 2; margin: 0; padding: 0; list-style: none; counter-reset: steps; font: 12px/1.9 ui-monospace, monospace; }
+li { counter-increment: steps; }
+li::before { content: "0" counter(steps) " / "; }
+footer { padding-top: 18px; border-top: 1px solid; }
+@media (max-width: 760px) {
+  .page { padding: 24px; }
+  .hero, .notes { grid-template-columns: 1fr; gap: 40px; }
+  .hero { padding: 48px 0; min-height: auto; }
+  h1 { font-size: clamp(80px, 20vw, 108px); margin-bottom: 28px; }
+  .intro { font-size: 18px; }
+  figure { width: 240px; }
+  .notes { gap: 24px; }
+  ol { grid-column: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .screen { transition: none; } }
