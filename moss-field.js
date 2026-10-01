@@ -83,4 +83,3 @@ export function draw(field) {
 export function settle(field, steps) {
   for (let i = 0; i < steps; i++) field.growth.step();
 }
-
