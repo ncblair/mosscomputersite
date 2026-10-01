@@ -187,7 +187,7 @@ test('moss spreads onto both screen faces without spawning there or entering the
   assert(growth.cells.every(age => age === 0));
 });
 
-test('coverage probability tapers between one and one-and-a-half surfaces', () => {
+test('coverage probability tapers between 100% and 180% of the surface', () => {
   const habitat = new Uint8Array(25).fill(1);
   habitat.fill(2, 0, 4);
   habitat.fill(3, 4, 10);
@@ -195,17 +195,18 @@ test('coverage probability tapers between one and one-and-a-half surfaces', () =
   assert.equal(growth.surfacePixels, 10);
   assert.equal(growth.growthProbability(0), 1);
   assert.equal(growth.growthProbability(10), 1);
-  assert.equal(growth.growthProbability(12.5), .5);
-  assert.equal(growth.growthProbability(15), 0);
+  assert.equal(growth.growthProbability(14), .5);
+  assert(growth.growthProbability(15) > 0);
+  assert.equal(growth.growthProbability(18), 0);
   assert.equal(growth.growthProbability(30), 0);
 });
 
 test('coverage taper suppresses spreading and independent new colonies', () => {
   const normal = new MossGrowth(5, 5, new Uint8Array(25).fill(2), (() => {
     let sample = 0;
-    return () => sample++ ? .75 : .045;
+    return () => sample++ ? .75 : .057;
   })());
-  const tapered = new MossGrowth(5, 5, new Uint8Array(25).fill(2), () => .045);
+  const tapered = new MossGrowth(5, 5, new Uint8Array(25).fill(2), () => .057);
   for (const growth of [normal, tapered]) {
     growth.blocked = true;
     growth.cells.fill(255, 0, growth.area);
@@ -226,10 +227,10 @@ test('births across all layers respect the cap, settle, then wake for drying and
   for (const index of [0, 1, 2, 3, 4, growth.area + 5, 2 * growth.area]) growth.cells[index] = 255;
   assert(growth.needsUpdate());
   growth.step();
-  assert.equal(growth.cells.filter(age => age > 0).length, 8);
+  assert.equal(growth.cells.filter(age => age > 0).length, 9);
   assert(growth.needsUpdate()); // The last birth must still mature.
   for (let step = 0; step < 130; step++) growth.step();
-  assert.equal(growth.cells.filter(age => age > 0).length, 8);
+  assert.equal(growth.cells.filter(age => age > 0).length, 9);
   assert.equal(growth.needsUpdate(), false);
   growth.setBlocked(false);
   assert(growth.needsUpdate());
@@ -247,7 +248,7 @@ test('initial colonies respect small surface budgets and empty fields can sleep'
   })());
   assert.equal(growth.needsUpdate(), false);
   growth.setBlocked(true);
-  assert.equal(growth.cells.filter(age => age > 0).length, 3);
+  assert.equal(growth.cells.filter(age => age > 0).length, 4);
   const empty = new MossGrowth(2, 1, new Uint8Array(2));
   empty.setBlocked(true);
   assert.equal(empty.needsUpdate(), false);

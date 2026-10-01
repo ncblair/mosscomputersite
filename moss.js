@@ -2,6 +2,8 @@
 // Depth 0: behind the shape; 1: solid shape and its fringe; 2: in front.
 // Cell values: 0 = bare, 1 = new growth, 255 = mature moss.
 // Habitat: 0 = unavailable, 1 = fringe, 2 = seeding surface, 3 = non-seeding surface.
+const maxCoverage = 1.8;
+
 export class MossGrowth {
   constructor(width, height, habitat, random = Math.random, spreadRate = 1) {
     this.width = width;
@@ -30,7 +32,7 @@ export class MossGrowth {
   setBlocked(blocked) {
     this.blocked = blocked;
     if (blocked && !this.cells.some(value => value > 0)) {
-      const seeds = Math.min(12, Math.ceil(this.surfacePixels * 1.5));
+      const seeds = Math.min(12, Math.ceil(this.surfacePixels * maxCoverage));
       for (let n = 0; n < seeds && this.spawners.length; n++) {
         this.cells[this.spawners[Math.floor(this.random() * this.spawners.length)]] = 1;
       }
@@ -38,9 +40,9 @@ export class MossGrowth {
   }
 
   growthProbability(occupiedCells) {
-    // Full speed through one surface's worth of moss, zero at 1.5 surfaces.
+    // Full speed through one surface's worth of moss, zero at 1.8 surfaces.
     if (!this.surfacePixels) return 0;
-    return Math.max(0, Math.min(1, 3 - 2 * occupiedCells / this.surfacePixels));
+    return Math.max(0, Math.min(1, (this.surfacePixels * maxCoverage - occupiedCells) / (this.surfacePixels * (maxCoverage - 1))));
   }
 
   needsUpdate() {
@@ -59,7 +61,7 @@ export class MossGrowth {
     let occupied = 0;
     for (const age of cells) if (age) occupied++;
     const probability = this.growthProbability(occupied);
-    let remainingBirths = Math.max(0, Math.ceil(this.surfacePixels * 1.5) - occupied);
+    let remainingBirths = Math.max(0, Math.ceil(this.surfacePixels * maxCoverage) - occupied);
     next.fill(0);
     for (let z = 0; z < this.depth; z++) {
       for (let y = 0; y < height; y++) {
