@@ -7,6 +7,8 @@ a { color: inherit; text-underline-offset: 3px; }
 .controls button:first-child { background: #111; color: #fff; }
 .prototype-page section + section { margin-top: 56px; }
 .prototype-page h2 { margin: 0 0 24px; font-size: 20px; font-weight: 500; letter-spacing: -.03em; }
+.page-study p { margin: 0 0 20px; font: 12px/1.6 ui-monospace, monospace; }
+.page-study iframe { display: block; width: 100%; height: 940px; border: 1px solid #d0d0d0; border-radius: 4px; }
 .studies { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; }
 .computer-studies { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .image-studies { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -37,6 +39,7 @@ a { color: inherit; text-underline-offset: 3px; }
 .study-note { padding: 36px 0 48px; }
 .controls button:focus-visible, .wordmark-preview:focus-visible, a:focus-visible { outline: 2px solid #111; outline-offset: 4px; }
 @media (max-width: 900px) {
+  .page-study iframe { height: 1200px; }
   .studies { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .computer-studies { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .image-studies, .wordmark-grid { grid-template-columns: 1fr; }

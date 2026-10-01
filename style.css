@@ -5,12 +5,10 @@ header, footer { display: flex; justify-content: space-between; gap: 20px; font:
 header { padding-bottom: 20px; border-bottom: 1px solid; }
 .header-brand { display: flex; align-items: center; gap: 6px; }
 .brand-icon { object-fit: contain; mix-blend-mode: multiply; filter: grayscale(1) contrast(3); }
-.header-brand .brand-icon { width: 28px; height: 24px; }
 .hero { display: grid; grid-template-columns: 1.8fr 1fr; align-items: center; gap: 64px; padding: 76px 0; min-height: 640px; }
 h1 { position: relative; width: fit-content; margin: 0 0 64px; font-size: clamp(80px, 12vw, 172px); font-weight: 500; line-height: .88; letter-spacing: -.075em; }
-#name { display: flex; align-items: center; gap: .16em; }
-#name .brand-icon { position: relative; z-index: 1; width: 1.2em; height: 1.05em; }
-.intro { max-width: 350px; margin: 0; font-size: 20px; line-height: 1.45; letter-spacing: -.025em; }
+#name [data-ink] { display: block; }
+.intro { max-width: 440px; margin: 0; font-size: 20px; line-height: 1.45; letter-spacing: -.025em; }
 .soon { margin: 24px 0 0; color: #666; font: 12px/1.5 ui-monospace, monospace; }
 figure { width: 280px; max-width: 100%; margin: 0 auto; }
 .screen { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 9 / 17; padding: 0; border: 1px solid #111; border-radius: 28px; background: #fff; color: #111; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color .35s, color .35s; }

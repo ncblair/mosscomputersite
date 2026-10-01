@@ -11,6 +11,8 @@ export const icons = [
   { id: 'computer-thin-surface', name: 'Thin / surface growth, slower', src: 'assets/computer-thin.svg', fillInterior: true, spreadRate: .45 },
   { id: 'computer-image-1', name: 'Your computer / dark screen', src: 'assets/computer-image-1.png', growInterior: true },
   { id: 'computer-image-2', name: 'Your computer / light screen', src: 'assets/computer-image-2.png', growInterior: true },
+  { id: 'computer-image-3', name: 'Your computer / rounded', src: 'assets/computer-image-3.png', growInterior: true },
+  { id: 'computer-geometric', name: 'Rounded computer / geometric SVG', src: 'assets/computer-geometric.svg', growInterior: true },
 ];
 
 export const defaultIcon = icons.find(icon => icon.id === 'computer-image-2');

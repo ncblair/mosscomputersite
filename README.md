@@ -6,7 +6,7 @@ Static GitHub Pages site. No dependencies or build step.
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000. The header and title read **Moss [computer icon]**, using the supplied light-screen computer PNG by default. Moss starts growing on the title before interaction. Tap the phone to block apps in the preview: moss grows on the computer while blocked and dries out after unblocking. Reduced-motion mode displays still images. Green is reserved for the moss.
+Open http://localhost:8000. The header and title read **Moss Computer**, with the computer icon appearing only in the phone preview. The tagline explains that old transit cards, hotel keys, or other NFC tags can block distracting apps for free. Moss starts growing on the title before interaction. Tap the phone to block apps in the preview: moss grows on the supplied light-screen computer while blocked and dries out after unblocking. Reduced-motion mode displays still images. Green is reserved for the moss.
 
 `moss.js` is the cellular automaton; `moss-field.js` builds and renders its habitat; `script.js` connects the landing-page interaction. The phone uses a 144 × 177 grid (previously 72 × 72); the title uses about 1.5 CSS pixels per cell. Each simulation has three depth slices. The shape occupies the solid middle slice and seeds moss on both faces. Every neighbor within a depth slice has equal influence. The circular habitat fringe also gives every direction the same space, with no downward lanes. Growth crosses depth around the shape's edges. Moss stays in place as it matures; it never detaches or falls.
 
@@ -22,7 +22,7 @@ GitHub Pages publishes the repository root on `main`. `CNAME` keeps the custom d
 
 ## Icon prototypes
 
-Open `prototypes.html` to compare the two supplied computer PNGs, with dark and light screens. Each appears in **Moss [computer]** and **M[computer]ss** wordmarks. The page also keeps the three outlined computer glyphs (2, 3.5, and 6-unit strokes), filled silhouette, stone/trunk studies, and river-stone “o.” Use **Grow all**, **Reset**, or tap an individual preview. **Try on site** opens `index.html?icon=<id>`; computer choices also update the title and header. Query values are limited to `icons.js`; unknown values use the supplied light-screen computer.
+Open `prototypes.html` to compare the three supplied computer PNGs, with dark, light, and rounded screens. The rounded computer and a geometric SVG interpretation appear in interactive full-page previews at the top. The SVG uses a polygon and four rounded rectangles to straighten the edges and regularize the corners. Both versions also appear in **Moss [computer]** and **M[computer]ss** wordmarks. The page keeps the three outlined computer glyphs (2, 3.5, and 6-unit strokes), filled silhouette, stone/trunk studies, and river-stone “o.” Use **Grow all**, **Reset**, or tap an individual preview. **Try on site** opens `index.html?icon=<id>` and changes only the phone icon. Query values are limited to `icons.js`; unknown values use the supplied light-screen computer.
 
 `docs/provided-computers.png` compares the supplied images and both wordmark treatments. `docs/computer-studies.png` compares the SVG computer variants with and without moss. `docs/icon-studies.png` and `docs/icon-studies-grown.png` show all previews bare and with equal-direction moss growth.
 

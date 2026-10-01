@@ -45,11 +45,11 @@ const fields = await Promise.all(icons.map(async icon => {
   return connectPreview(figure, createIconField(figure, image, icon), icon.name);
 }));
 
-for (const icon of icons.filter(icon => icon.src.endsWith('.png'))) {
+for (const icon of icons.filter(icon => icon.src.endsWith('.png') || icon.id === 'computer-geometric')) {
   for (const replaceO of [false, true]) {
     const study = document.createElement('article');
     study.className = 'wordmark-study';
-    const label = `${icon.id.endsWith('1') ? 'Dark' : 'Light'} screen / ${replaceO ? 'computer “o”' : 'Moss + computer'}`;
+    const label = `${icon.name.replace('Your computer / ', '')} / ${replaceO ? 'computer “o”' : 'Moss + computer'}`;
     study.innerHTML = `
       <h3>${label}</h3>
       <button class="wordmark-preview" type="button" aria-pressed="false" aria-label="Grow moss on ${label}">
