@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MossGrowth } from './moss.js';
-import { createHabitat } from './moss-field.js';
+import { createHabitat, fillEnclosedSurface } from './moss-field.js';
 
 function simulation(seed = 17) {
   const habitat = new Uint8Array(72 * 72).fill(1);
@@ -92,5 +92,51 @@ test('habitat has a circular fringe with equal room on every side', () => {
       const radius = (x - 12) ** 2 + (y - 12) ** 2;
       assert.equal(habitat[y * width + x], radius === 0 ? 2 : radius <= 36 ? 1 : 0);
     }
+  }
+});
+
+test('computer masks fill enclosed screens while preserving exterior and open gaps', () => {
+  const width = 11;
+  const height = 9;
+  const outline = new Uint8Array(width * height);
+  for (let y = 2; y <= 6; y++) {
+    for (let x = 2; x <= 6; x++) {
+      if (x === 2 || x === 6 || y === 2 || y === 6) outline[y * width + x] = 2;
+    }
+    outline[y * width + 9] = 2;
+  }
+  const filled = outline.slice();
+  fillEnclosedSurface(filled, width, height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      assert.equal(filled[y * width + x], x >= 2 && x <= 6 && y >= 2 && y <= 6 ? 2 : outline[y * width + x]);
+    }
+  }
+  outline[2 * width + 4] = 0;
+  const open = outline.slice();
+  fillEnclosedSurface(open, width, height);
+  assert.deepEqual(open, outline);
+});
+
+test('slower spread reduces births without changing maturation or drying', () => {
+  const normal = new MossGrowth(5, 5, new Uint8Array(25).fill(2), () => .025);
+  const slow = new MossGrowth(5, 5, new Uint8Array(25).fill(2), () => .025, .45);
+  for (const growth of [normal, slow]) {
+    growth.blocked = true;
+    growth.cells[12] = 16;
+    growth.step();
+    assert.equal(growth.cells[12], 18);
+  }
+  for (let y = 1; y <= 3; y++) {
+    for (let x = 1; x <= 3; x++) {
+      if (x === 2 && y === 2) continue;
+      assert.equal(normal.cells[y * 5 + x], 1);
+      assert.equal(slow.cells[y * 5 + x], 0);
+    }
+  }
+  for (const growth of [normal, slow]) {
+    growth.setBlocked(false);
+    growth.step();
+    assert.equal(growth.cells[12], 13);
   }
 });

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <link rel="icon" href="assets/star.svg">
+  <link rel="icon" href="assets/computer-image-1.png">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="prototypes.css">
   <title>Moss — icon studies</title>
@@ -12,12 +12,20 @@
 </head>
 <body>
   <div class="page prototype-page">
-    <header><a href="index.html">Moss</a><span>Icon studies</span></header>
+    <header><a class="header-brand" href="index.html" aria-label="Moss Computer">Moss <img class="brand-icon" src="assets/computer-image-1.png" width="28" height="24" alt=""></a><span>Icon studies</span></header>
     <main>
       <div class="study-heading">
         <div><h1>Icon studies</h1><p>Equal growth in every direction.</p></div>
         <div class="controls"><button id="grow" type="button">Grow all</button><button id="reset" type="button">Reset</button></div>
       </div>
+      <section aria-labelledby="image-heading">
+        <h2 id="image-heading">Your computer icons</h2>
+        <div class="studies image-studies" id="images"></div>
+      </section>
+      <section aria-labelledby="wordmarks-heading">
+        <h2 id="wordmarks-heading">Computer wordmarks</h2>
+        <div class="wordmark-grid" id="computer-wordmarks"></div>
+      </section>
       <section aria-labelledby="computer-heading">
         <h2 id="computer-heading">Moss Computer</h2>
         <div class="studies computer-studies" id="computers"></div>

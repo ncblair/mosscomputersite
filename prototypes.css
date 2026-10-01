@@ -8,15 +8,17 @@ a { color: inherit; text-underline-offset: 3px; }
 .prototype-page section + section { margin-top: 56px; }
 .prototype-page h2 { margin: 0 0 24px; font-size: 20px; font-weight: 500; letter-spacing: -.03em; }
 .studies { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; }
-.computer-studies { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.computer-studies .screen { display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.computer-studies { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.image-studies { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+:is(.computer-studies, .image-studies) .screen { display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.studies.image-studies .screen { aspect-ratio: 2 / 1; }
 .computer-name { font-size: clamp(20px, 2.2vw, 32px); line-height: 1.1; letter-spacing: -.06em; }
 .studies figure { width: 100%; margin: 0; }
 .studies .screen { aspect-ratio: 4 / 5; border-color: #d0d0d0; border-radius: 4px; }
 .studies .screen::before { content: none; }
 .studies .icon-field:not(.full-height) { width: 160px; max-width: 94%; }
-.computer-studies .icon-field { aspect-ratio: 1; }
-.computer-studies .icon { width: 100%; left: 0; top: 0; }
+:is(.computer-studies, .image-studies) .icon-field { aspect-ratio: 1; }
+:is(.computer-studies, .image-studies) .icon { width: 100%; left: 0; top: 0; }
 .studies figcaption { display: block; margin-top: 20px; }
 .studies .label { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
 .studies .status { color: #666; }
@@ -27,11 +29,18 @@ a { color: inherit; text-underline-offset: 3px; }
 .wordmark .moss-layer { left: -24px; top: -24px; }
 .wordmark-caption { display: flex; justify-content: space-between; margin: 16px 0 0; font: 11px/1.5 ui-monospace, monospace; }
 .wordmark-caption .status { color: #666; }
+.wordmark-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 20px; }
+.wordmark-grid h3 { margin: 0 0 16px; font: 12px/1.6 ui-monospace, monospace; font-weight: 400; }
+.wordmark-grid .wordmark { font-size: clamp(64px, 7.2vw, 104px); }
+.wordmark-computer { width: 1.2em; height: 1.05em; margin-left: .16em; }
+.wordmark-computer-o { width: .75em; height: .72em; margin: 0 -.03em; transform: translateY(.065em); }
 .study-note { padding: 36px 0 48px; }
 .controls button:focus-visible, .wordmark-preview:focus-visible, a:focus-visible { outline: 2px solid #111; outline-offset: 4px; }
 @media (max-width: 900px) {
   .studies { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .computer-studies { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .image-studies, .wordmark-grid { grid-template-columns: 1fr; }
+  .wordmark-grid .wordmark { font-size: clamp(64px, 12vw, 104px); }
 }
 @media (max-width: 600px) {
   .study-heading { align-items: start; flex-direction: column; padding-top: 40px; }

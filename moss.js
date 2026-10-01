@@ -1,14 +1,15 @@
 // Portable three-layer cellular automaton. One step represents 100 ms.
-// Depth 0: behind the star; 1: solid star and its fringe; 2: in front.
+// Depth 0: behind the shape; 1: solid shape and its fringe; 2: in front.
 // Cell values: 0 = bare, 1 = new growth, 255 = mature moss.
 export class MossGrowth {
-  constructor(width, height, habitat, random = Math.random) {
+  constructor(width, height, habitat, random = Math.random, spreadRate = 1) {
     this.width = width;
     this.height = height;
     this.depth = 3;
     this.area = width * height;
     this.habitat = habitat;
     this.random = random;
+    this.spreadRate = spreadRate;
     this.cells = new Uint8Array(this.area * this.depth);
     this.next = new Uint8Array(this.cells.length);
     this.blocked = false;
@@ -57,17 +58,17 @@ export class MossGrowth {
                 }
               }
             }
-            // Cross-depth growth goes around the star, never through it.
+            // Cross-depth growth goes around the shape, never through it.
             if (z > 0 && cells[i - area] > 12) influence += .7;
             if (z < this.depth - 1 && cells[i + area] > 12) influence += .7;
-            const chance = influence * (habitat[plane] === 2 ? .04 : .012);
+            const chance = influence * (habitat[plane] === 2 ? .04 : .012) * this.spreadRate;
             if (influence && this.random() < chance) next[i] = 1;
           }
         }
       }
     }
     // Occasional new colonies on either face while blocking remains active.
-    if (this.blocked && this.spawners.length && this.random() < .06) {
+    if (this.blocked && this.spawners.length && this.random() < .06 * this.spreadRate) {
       const i = this.spawners[Math.floor(this.random() * this.spawners.length)];
       if (!next[i]) next[i] = 1;
     }

@@ -1,18 +1,25 @@
 import { createIconField, createWordmarkField, draw, settle } from './moss-field.js';
-import { icons } from './icons.js';
+import { icons, defaultIcon } from './icons.js';
 
 const screen = document.querySelector('.screen');
 const title = document.getElementById('name');
 const icon = document.querySelector('.icon');
-const selectedIcon = icons.find(item => item.id === new URLSearchParams(location.search).get('icon')) || icons[0];
-icon.src = selectedIcon.src;
+const selectedIcon = icons.find(item => item.id === new URLSearchParams(location.search).get('icon')) || defaultIcon;
+const brandIcon = selectedIcon.id.startsWith('computer') ? selectedIcon : defaultIcon;
+const titleIcon = title.querySelector('img');
+const headerIcon = document.querySelector('.header-brand img');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-await icon.decode();
+// Wait for the new request: replacing a PNG can invalidate Firefox's pending decode.
+await Promise.all([[icon, selectedIcon.src], [titleIcon, brandIcon.src], [headerIcon, brandIcon.src]].map(([image, source]) => new Promise((resolve, reject) => {
+  image.onload = () => { image.onload = image.onerror = null; resolve(); };
+  image.onerror = () => { image.onload = image.onerror = null; reject(new Error(`Cannot load ${source}`)); };
+  image.src = source;
+})));
 await document.fonts.ready;
-const phone = createIconField(screen, icon, selectedIcon.fullHeight);
+const phone = createIconField(screen, icon, selectedIcon);
 let titleMoss;
 function createTitle() {
-  const next = createWordmarkField(title, titleMoss);
+  const next = createWordmarkField(title, titleMoss, brandIcon);
   if (next === titleMoss) return;
   titleMoss = next;
   titleMoss.growth.setBlocked(true);

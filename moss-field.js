@@ -21,7 +21,65 @@ export function createHabitat(width, height, surface) {
   return habitat;
 }
 
-export function createField(element, width, height, paintShape) {
+export function fillEnclosedSurface(surface, width, height) {
+  // Flood the exterior; enclosed white screen/bezel regions belong to the computer.
+  const exterior = new Uint8Array(surface.length);
+  const queue = new Int32Array(surface.length);
+  let head = 0;
+  let tail = 0;
+  function visit(i) {
+    if (surface[i] || exterior[i]) return;
+    exterior[i] = 1;
+    queue[tail++] = i;
+  }
+  for (let x = 0; x < width; x++) { visit(x); visit((height - 1) * width + x); }
+  for (let y = 0; y < height; y++) { visit(y * width); visit(y * width + width - 1); }
+  while (head < tail) {
+    const i = queue[head++];
+    const x = i % width;
+    if (x > 0) visit(i - 1);
+    if (x < width - 1) visit(i + 1);
+    if (i >= width) visit(i - width);
+    if (i + width < surface.length) visit(i + width);
+  }
+  for (let i = 0; i < surface.length; i++) if (!exterior[i]) surface[i] = 2;
+}
+
+function imageMask(image, fillInterior) {
+  const mask = document.createElement('canvas');
+  mask.width = image.naturalWidth;
+  mask.height = image.naturalHeight;
+  const ink = mask.getContext('2d', { willReadFrequently: true });
+  ink.drawImage(image, 0, 0, mask.width, mask.height);
+  const pixels = ink.getImageData(0, 0, mask.width, mask.height);
+  const surface = new Uint8Array(mask.width * mask.height);
+  for (let i = 0; i < surface.length; i++) {
+    const p = i * 4;
+    if (pixels.data[p + 3] > 90 && pixels.data[p] + pixels.data[p + 1] + pixels.data[p + 2] < 384) surface[i] = 2;
+  }
+  if (fillInterior) fillEnclosedSurface(surface, mask.width, mask.height);
+  for (let i = 0; i < surface.length; i++) {
+    const p = i * 4;
+    pixels.data[p] = pixels.data[p + 1] = pixels.data[p + 2] = 0;
+    pixels.data[p + 3] = surface[i] ? 255 : 0;
+  }
+  ink.putImageData(pixels, 0, 0);
+  return mask;
+}
+
+function paintImage(ink, image, x, y, width, height, fillInterior) {
+  const mask = imageMask(image, fillInterior);
+  if (getComputedStyle(image).objectFit === 'contain') {
+    const scale = Math.min(width / mask.width, height / mask.height);
+    x += (width - mask.width * scale) / 2;
+    y += (height - mask.height * scale) / 2;
+    width = mask.width * scale;
+    height = mask.height * scale;
+  }
+  ink.drawImage(mask, x, y, width, height);
+}
+
+export function createField(element, width, height, paintShape, spreadRate = 1) {
   const back = element.querySelector('.back');
   const front = element.querySelector('.front');
   back.width = front.width = width;
@@ -39,14 +97,15 @@ export function createField(element, width, height, paintShape) {
   const frontContext = front.getContext('2d');
   // Drawing buffers depend only on this field's fixed dimensions.
   return {
-    growth: new MossGrowth(width, height, habitat),
+    growth: new MossGrowth(width, height, habitat, Math.random, spreadRate),
     back: backContext, front: frontContext,
     backPixels: backContext.createImageData(width, height),
     frontPixels: frontContext.createImageData(width, height),
   };
 }
 
-export function createIconField(element, image, fullHeight = false) {
+export function createIconField(element, image, options = {}) {
+  const { fullHeight = false, fillInterior = false, spreadRate = 1 } = options;
   const container = element.querySelector('.icon-field');
   container.classList.toggle('full-height', fullHeight);
   const bounds = container.getBoundingClientRect();
@@ -54,13 +113,13 @@ export function createIconField(element, image, fullHeight = false) {
   const width = fullHeight ? Math.ceil(bounds.width / 1.5) : 144;
   const height = fullHeight ? Math.ceil(bounds.height / 1.5) : Math.round(width * bounds.height / bounds.width);
   // Sample the actual icon placement so the native shape and moss stay aligned.
-  return createField(element, width, height, ink => ink.drawImage(image,
+  return createField(element, width, height, ink => paintImage(ink, image,
     (shape.left - bounds.left) / bounds.width * width,
     (shape.top - bounds.top) / bounds.height * height,
-    shape.width / bounds.width * width, shape.height / bounds.height * height));
+    shape.width / bounds.width * width, shape.height / bounds.height * height, fillInterior), spreadRate);
 }
 
-export function createWordmarkField(element, previous) {
+export function createWordmarkField(element, previous, imageOptions = {}) {
   const bounds = element.getBoundingClientRect();
   const width = Math.ceil((bounds.width + 48) / 1.5);
   const height = Math.ceil((bounds.height + 48) / 1.5);
@@ -76,7 +135,7 @@ export function createWordmarkField(element, previous) {
       const x = 24 + box.left - bounds.left;
       const y = 24 + box.top - bounds.top;
       if (part instanceof HTMLImageElement) {
-        ink.drawImage(part, x, y, box.width, box.height);
+        paintImage(ink, part, x, y, box.width, box.height, imageOptions.fillInterior);
       } else {
         const style = getComputedStyle(part);
         ink.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
